@@ -4,48 +4,72 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solar System — Interactive 3D Orrery</title>
-  <meta name="description" content="An interactive 3D solar system: real orbital periods, procedurally generated planets, and click-to-explore data. Built with Three.js." />
+  <meta name="description" content="An interactive 3D solar system with NASA-scale textures: real orbital periods, Saturn's rings, the asteroid belt and comets." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='28' fill='%23ffcc55'/><ellipse cx='50' cy='50' rx='46' ry='18' fill='none' stroke='%2300adb5' stroke-width='4'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='26' fill='%23ffcc55'/><ellipse cx='50' cy='50' rx='44' ry='16' fill='none' stroke='%2300adb5' stroke-width='4'/></svg>" />
 </head>
 <body>
   <canvas id="scene"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
-  <header class="hud hud-top">
-    <h1>Solar<span>System</span></h1>
-    <p class="sub">Orbital periods at true relative speed · drag to orbit · scroll to zoom</p>
-  </header>
-
-  <div class="hud hud-controls">
-    <button id="toggle" class="btn" aria-pressed="false">Pause</button>
-    <label class="speed">
-      <span>Speed</span>
-      <input id="speed" type="range" min="0" max="4" step="0.1" value="1" aria-label="Animation speed" />
-      <output id="speedOut">1.0×</output>
-    </label>
-    <button id="reset" class="btn">Reset view</button>
+  <div class="loader" id="loader">
+    <div class="loader-inner">
+      <div class="loader-orbit"><span></span></div>
+      <p id="loaderText">Loading planetary textures</p>
+      <div class="loader-bar"><i id="loaderBar"></i></div>
+    </div>
   </div>
 
-  <nav class="hud hud-nav" id="nav" aria-label="Jump to planet"></nav>
+  <div class="toolbar" role="toolbar" aria-label="Scene controls">
+    <button id="toggle" class="tbtn" title="Pause or play (Space)" aria-pressed="false">
+      <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4.5v15l12-7.5z"/></svg>
+    </button>
+    <div class="speed-control">
+      <span class="speed-label">Speed</span>
+      <input id="speed" type="range" min="0" max="4" step="0.1" value="1" aria-label="Orbital speed" />
+      <output id="speedOut">1.0×</output>
+    </div>
+    <button id="reset" class="tbtn" title="Reset view">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <nav class="chips" id="nav" aria-label="Jump to planet"></nav>
 
   <aside class="panel" id="panel" hidden>
     <button class="panel-close" id="panelClose" aria-label="Close">&times;</button>
-    <div class="panel-head">
-      <span class="dot" id="panelDot"></span>
-      <h2 id="panelName">Planet</h2>
-    </div>
+    <p class="panel-kicker">Planet</p>
+    <h2 id="panelName">—</h2>
     <dl class="stats">
-      <div><dt>Distance from Sun</dt><dd id="dDist">—</dd></div>
+      <div><dt>Distance</dt><dd id="dDist">—</dd></div>
       <div><dt>Orbital period</dt><dd id="dPeriod">—</dd></div>
       <div><dt>Diameter</dt><dd id="dDia">—</dd></div>
       <div><dt>Day length</dt><dd id="dDay">—</dd></div>
       <div><dt>Moons</dt><dd id="dMoons">—</dd></div>
-      <div><dt>Mean temperature</dt><dd id="dTemp">—</dd></div>
+      <div><dt>Temperature</dt><dd id="dTemp">—</dd></div>
     </dl>
     <p class="fact" id="dFact"></p>
   </aside>
 
-  <p class="hint" id="hint">Click any planet to inspect it</p>
+  <div class="tooltip" id="tooltip" hidden>
+    <span class="tooltip-dot"></span>
+    <span id="tooltipName">Planet</span>
+  </div>
+
+  <footer class="footer">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-title">Solar System</p>
+        <p class="brand-sub">Interactive orrery · drag · scroll · click a planet</p>
+      </div>
+    </div>
+    <p class="credit">Textures by <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener">SolarSystemScope</a> · CC BY 4.0</p>
+  </footer>
 
   <script type="importmap">
   {
