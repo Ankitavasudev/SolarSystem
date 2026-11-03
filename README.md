@@ -29,7 +29,7 @@ A full solar system that runs from a static folder — no bundler, no framework,
 
 | | |
 | :-- | :-- |
-| **Real surface maps** | 1K–2K albedo textures for all eight planets, Earth cloud layer, Saturn ring alpha map |
+| **Real surface maps** | 2K albedo maps for all eight planets, plus the Moon, the Sun, Earth's cloud layer and Saturn's ring alpha map |
 | **Kepler-correct motion** | Angular speed ∝ `1/√a`, so Mercury laps Earth four times in the time Earth orbits once |
 | **Asteroid belt** | 2,400 instanced rocks between Mars and Jupiter, each with its own size and spin |
 | **Kuiper belt** | 2,600 icy bodies beyond Neptune |
@@ -87,7 +87,7 @@ SolarSystem/
 ├── index.html      # markup, import map, HUD
 ├── style.css       # glass UI, tooltip, ripple, responsive layout
 ├── script.js       # scene graph, orbital maths, belt, comets, interaction
-├── textures/       # 13 planet maps + Milky Way (≈1.5 MB, self-hosted)
+├── textures/       # 13 maps incl. the Milky Way (≈1.5 MB, self-hosted)
 └── README.md
 ```
 
