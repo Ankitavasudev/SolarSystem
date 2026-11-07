@@ -478,6 +478,43 @@ let paused = false;
 let speed = 1;
 let resetting = false;
 
+/* ------------------------------------------------------------------- sound */
+const Sound = (() => {
+  let ctx = null;
+  let muted = localStorage.getItem("solarsys-sound") === "0";
+  function ensure() {
+    if (!ctx) try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { ctx = null; }
+    if (ctx && ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+  function tone(freq, dur, type = "sine", gain = 0.07, slide = 0) {
+    if (muted) return;
+    const c = ensure(); if (!c) return;
+    const now = c.currentTime;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, now);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), now + dur);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    o.connect(g).connect(c.destination);
+    o.start(now); o.stop(now + dur + 0.02);
+  }
+  return {
+    select: () => { tone(523, 0.07, "sine", 0.07); setTimeout(() => tone(659, 0.09, "sine", 0.08), 70); },
+    toggle: () => tone(740, 0.05, "triangle", 0.06),
+    reset: () => tone(440, 0.14, "sawtooth", 0.06, -220),
+    close: () => tone(660, 0.06, "sine", 0.06),
+    toggleMute: () => {
+      muted = !muted;
+      localStorage.setItem("solarsys-sound", muted ? "0" : "1");
+      if (!muted) tone(880, 0.06, "sine", 0.08);
+      return muted;
+    },
+    isMuted: () => muted,
+  };
+})();
+
 bodies.forEach((body) => {
   const button = document.createElement("button");
   button.type = "button";
@@ -509,6 +546,7 @@ function selectBody(body) {
     other.navButton.setAttribute("aria-current", other === body ? "true" : "false");
     other.orbit.material.opacity = other === body ? 0.85 : 0.2;
   });
+  Sound.select();
 }
 
 function clearSelection() {
@@ -520,16 +558,25 @@ function clearSelection() {
   });
 }
 
-document.getElementById("panelClose").addEventListener("click", clearSelection);
+document.getElementById("panelClose").addEventListener("click", () => { clearSelection(); Sound.close(); });
 
 toggleBtn.addEventListener("click", () => {
   paused = !paused;
   toggleBtn.setAttribute("aria-pressed", String(paused));
+  Sound.toggle();
 });
 
 resetBtn.addEventListener("click", () => {
   clearSelection();
   resetting = true;
+  Sound.reset();
+});
+
+const muteBtn = document.getElementById("muteBtn");
+muteBtn.addEventListener("click", () => {
+  const m = Sound.toggleMute();
+  muteBtn.setAttribute("aria-pressed", String(m));
+  muteBtn.title = m ? "Sound off" : "Toggle sound";
 });
 
 speedInput.addEventListener("input", () => {
