@@ -11,6 +11,8 @@
 <img src="https://img.shields.io/badge/no%20build%20step-0D1117?style=for-the-badge&logoColor=white" />
 &nbsp;
 <img src="https://img.shields.io/badge/three.js-r170-0D1117?style=for-the-badge&logo=three.js&logoColor=white" />
+&nbsp;
+<a href="https://github.com/Ankitavasudev/SolarSystem/actions/workflows/ci.yml"><img src="https://github.com/Ankitavasudev/SolarSystem/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
 
 <br /><br />
 
@@ -29,7 +31,7 @@ A full solar system that runs from a static folder — no bundler, no framework,
 
 | | |
 | :-- | :-- |
-| **Real surface maps** | 2K albedo maps for all eight planets, plus the Moon, the Sun, Earth's cloud layer and Saturn's ring alpha map |
+| **Real surface maps** | 2K albedo maps for all eight planets, the Sun, Earth's cloud layer and Saturn's ring alpha map |
 | **Kepler-correct motion** | Angular speed ∝ `1/√a`, so Mercury laps Earth four times in the time Earth orbits once |
 | **Asteroid belt** | 2,400 instanced rocks between Mars and Jupiter, each with its own size and spin |
 | **Kuiper belt** | 2,600 icy bodies beyond Neptune |
@@ -88,8 +90,25 @@ SolarSystem/
 ├── style.css       # glass UI, tooltip, ripple, responsive layout
 ├── script.js       # scene graph, orbital maths, belt, comets, interaction
 ├── textures/       # 13 maps incl. the Milky Way (≈1.5 MB, self-hosted)
+├── test/           # node:test smoke suite
+├── package.json    # npm test / npm run serve
+├── .github/workflows/ci.yml
 └── README.md
 ```
+
+## Tests
+
+No browser and no dependencies — the suite checks what can actually break a static page:
+
+```bash
+npm test
+```
+
+It verifies the head metadata, that every local file and texture reference resolves,
+that the textures folder has no dead files, that the planet table lists the eight
+planets in orbital order, that every period satisfies Kepler's third law (T² ∝ a³,
+±5%), and that `script.js` parses as an ES module. CI runs the same command on every
+push and pull request.
 
 ## Credits
 

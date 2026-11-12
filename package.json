@@ -1,0 +1,11 @@
+{
+  "name": "solar-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive 3D solar system orrery with real textures and Kepler-correct orbits",
+  "scripts": {
+    "test": "node --check script.js && node --test",
+    "serve": "python -m http.server 8000"
+  }
+}
